@@ -1,0 +1,155 @@
+
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Farm {% endblock title %}
+
+{% block extrastyle %}
+<!-- DataTables -->
+<link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+{% endblock extrastyle %}
+
+{% block bodyclass %} hold-transition sidebar-mini {% endblock bodyclass %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Farm</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <button type="button" class="btn btn-sm btn-primary float-right js-add-farm" data-toggle="modal" data-target="#new-farm" data-url="{% url 'add-farm' %}">Add new</button>
+                        </div>
+                        <div class="card-body">
+                            <table id="farm-list" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Profile Name</th>
+                                        <th>Location</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% include "user/farm/list_farm.html" %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <b>Latitude:{{ farms.latitude }}, Longitude:{{ farms.longitude }} , Altitude:{{farms.altitude}}</b>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- display the map here -->
+
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for adding/editing farm -->
+    <div class="modal fade" id="new-farm">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_scripts %}
+<!-- DataTables & Plugins -->
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<script>
+    $(function() {
+        var loadForm = function() {
+            var btn = $(this);
+            $.ajax({
+                url: btn.attr('data-url'),
+                type: 'get',
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#new-farm').modal('show');
+                },
+                success: function(data) {
+                    $('#new-farm .modal-content').html(data.html_form);
+                }
+            });
+        };
+
+        var saveForm = function() {
+            var form = $(this);
+            $.ajax({
+                url: form.attr('action'),
+                data: form.serialize(),
+                type: form.attr('method'),
+                dataType: 'json',
+                success: function(data) {
+                    if (data.form_is_valid) {
+                        $('#farm-list tbody').html(data.farm_list);
+                        $('#new-farm').modal('hide');
+                    } else {
+                        $('#new-farm .modal-content').html(data.html_form);
+                    }
+                }
+            });
+            return false;
+        };
+
+        // Add farm
+        $('.js-add-farm').click(loadForm);
+        $('#new-farm').on('submit', '.js-farm-create-form', saveForm);
+
+        // Edit farm
+        $('#farm-list').on('click', '.js-edit-farm', loadForm);
+        $('#new-farm').on('submit', '.js-farm-edit-form', saveForm);
+
+        // Delete farm
+        $('#farm-list').on('click', '.js-delete-farm', loadForm);
+        $('#new-farm').on('submit', '.js-farm-delete-form', saveForm);
+
+        // Initialize DataTables
+        $('#farm-list').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+        });
+    });
+</script>
+{% endblock extra_scripts %}

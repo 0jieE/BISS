@@ -1,0 +1,27 @@
+{% for profile in profiles %}
+<tr>
+    <td>{{ profile.first_name }} {{ profile.middle_name }} {{ profile.last_name }} {{ profile.extension_name }}</td>
+    <td>{{ profile.birth_date }}</td>
+    <td>{{ profile.get_gender_display }}</td>
+    <td>{{ profile.get_civil_status_display }}</td>
+    <td>{{ profile.get_citizenship_display }}</td>
+    <td>{{ profile.religion }}</td>
+    <td>{{ profile.contact_no }}</td>
+    <td>{{ profile.email_address }}</td>
+    <td>{{ profile.facebook_account }}</td>
+    <td>{{ profile.household_head|yesno:"Yes,No" }}</td>
+    <td>{{ profile.beneficiary_4p|yesno:"Yes,No" }}</td>
+    <td>{{ profile.indigenous_group|yesno:"Yes,No" }}</td>
+    <td>{{ profile.tribe }}</td>
+    <td>{{ profile.spouse_name }}</td>
+    <td>{{ profile.spouse_occupation }}</td>
+    <td>{{ profile.member_organization|yesno:"Yes,No" }}</td>
+    <td>{{ profile.skills }}</td>
+    <td>{{ profile.pwd|yesno:"Yes,No" }}</td>
+    <td>{{ profile.get_education_display }}</td>
+    <td>
+        <button type="button" class="btn btn-sm btn-warning js-edit-profile" data-toggle="modal" data-target="#new-profile" data-url="{% url 'edit-profile' profile.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-profile" data-toggle="modal" data-target="#new-profile" data-url="{% url 'delete-profile' profile.pk %}">Delete</button>
+    </td>
+</tr>
+{% endfor %}

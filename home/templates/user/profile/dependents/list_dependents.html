@@ -1,0 +1,19 @@
+{% for dependent in dependents %}
+<tr>
+    <td>{{ dependent.profile }}</td>
+    <td>{{ dependent.last_name }}</td>
+    <td>{{ dependent.first_name }}</td>
+    <td>{{ dependent.middle_name }}</td>
+    <td>{{ dependent.ext_name }}</td>
+    <td>{{ dependent.birth_date }}</td>
+    <td>{{ dependent.education }}</td>
+    <td>
+        <button type="button" class="btn btn-sm btn-warning js-edit-dependent" data-toggle="modal" data-target="#new-dependent" data-url="{% url "edit-dependent" d.pk%}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-dependent" data-toggle="modal" data-target="#new-dependent" data-url="{% url "delete-dependent" d.pk%}">Delete</button>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="7">No dependents found.</td>
+</tr>
+{% endfor %}

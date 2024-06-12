@@ -1,0 +1,15 @@
+{%for province in provinces %}
+    <tr>
+        <td>{{province.province_name}}</td>
+        <td>{{province.region}}</td>
+        <td>{{province.created_on}}</td>
+        <td>
+            <button class="btn btn-warning btn-sm js-edit-province" data-toggle="modal"  data-target="#new-province" data-url="{% url "edit-province" province.pk%}">
+                Edit
+            </button>
+            <button class="btn btn-sm btn-danger js-delete-province" data-toggle="modal" data-target="#new-province" data-url="{% url "delete-province" province.pk%}">
+                Delete
+            </button>
+        </td>
+    </tr>
+{%endfor%}

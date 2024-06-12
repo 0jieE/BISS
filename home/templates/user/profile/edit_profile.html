@@ -1,0 +1,85 @@
+{% load crispy_forms_tags %}
+<form method="post" action="{% url 'edit-profile' form.instance.pk %}" class="js-profile-edit-form">
+    {% csrf_token %}
+    <div class="modal-header">
+        <h4 class="modal-title">Edit Profile</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="col-md-12">
+            {{ form.last_name|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.first_name|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.middle_name|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.extension_name|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.birth_date|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.gender|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.civil_status|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.citizenship|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.religion|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.contact_no|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.email_address|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.facebook_account|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.household_head|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.beneficiary_4p|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.indigenous_group|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.tribe|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.spouse_name|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.spouse_occupation|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.member_organization|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.skills|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.pwd|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.education|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
+            {{ form.picture|as_crispy_field }}
+        </div>
+    </div>
+    <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>

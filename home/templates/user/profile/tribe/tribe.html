@@ -1,0 +1,135 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% block title %} Tribe {% endblock title %}
+{% block extrastyle %}
+<!-- DataTables -->
+<link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+{% endblock extrastyle %}
+{% block bodyclass %} hold-transition sidebar-mini {% endblock bodyclass %}
+{% block content %}
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Tribe</h1>
+                </div>
+            </div><!-- /.container-fluid -->
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <button type="button" class="btn btn-sm btn-primary float-right js-add-tribe" data-toggle="modal" data-target="#new-tribe" data-url="{% url 'add-tribe' %}">Add new</button>
+                        </div>
+                        <div class="card-body p-10">
+                            <table id="tribe-list" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tribe Name</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% include "user/profile/tribe/list_tribe.html" %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="modal fade" id="new-tribe">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+{% endblock content %}
+{% block extra_scripts %}
+<!-- DataTables  & Plugins -->
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+<!-- Page specific script -->
+<script>
+    $(function() {
+        var loadForm = function() {
+            var btn = $(this);
+            $.ajax({
+                url: btn.attr('data-url'),
+                type: 'get',
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#new-tribe').modal('show');
+                },
+                success: function(data) {
+                    $('#new-tribe .modal-content').html(data.html_form);
+                }
+            });
+        };
+
+        var saveForm = function() {
+            var form = $(this);
+            $.ajax({
+                url: form.attr('action'),
+                data: form.serialize(),
+                type: form.attr('method'),
+                dataType: 'json',
+                success: function(data) {
+                    if (data.form_is_valid) {
+                        $('#tribe-list tbody').html(data.tribe_list);
+                        $('#new-tribe').modal('hide');
+                    } else {
+                        $('#new-tribe .modal-content').html(data.html_form);
+                    }
+                }
+            });
+            return false;
+        };
+
+        // Add tribe
+        $('.js-add-tribe').click(loadForm);
+        $('#new-tribe').on('submit', '.js-tribe-create-form', saveForm);
+
+        // Edit tribe
+        $('#tribe-list').on('click', '.js-edit-tribe', loadForm);
+        $('#new-tribe').on('submit', '.js-tribe-edit-form', saveForm);
+
+        // Delete tribe
+        $('#tribe-list').on('click', '.js-delete-tribe', loadForm);
+        $('#new-tribe').on('submit', '.js-tribe-delete-form', saveForm);
+
+        // Initialize DataTables
+        $('#tribe-list').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+        });
+    });
+</script>
+{% endblock extra_scripts %}

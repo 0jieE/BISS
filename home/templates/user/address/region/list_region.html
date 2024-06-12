@@ -1,0 +1,15 @@
+{%for region in regions %}
+    <tr>
+        <td>{{region.region_name}}</td>
+        <td>{{region.region_short}}</td>
+        <td>{{region.created_on}}</td>
+        <td>
+            <button class="btn btn-warning btn-sm js-edit-region" data-toggle="modal" data-target="#new-region"  data-url="{% url "edit-region" region.pk%}">
+                Edit
+            </button>
+            <button class="btn btn-sm btn-danger js-delete-region"  data-toggle="modal" data-target="#new-region" data-url="{% url "delete-region" region.pk%}">
+                Delete
+            </button>
+        </td>
+    </tr>
+{%endfor%}

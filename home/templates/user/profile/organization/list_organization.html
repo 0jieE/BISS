@@ -1,0 +1,9 @@
+{% for organization in organizations %}
+<tr>
+    <td>{{ organization.organization_name }}</td>
+    <td>
+        <button type="button" class="btn btn-sm btn-warning js-edit-organization" data-toggle="modal" data-target="#new-organization" data-url="{% url 'edit-organization' organization.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-organization" data-toggle="modal" data-target="#new-organization" data-url="{% url 'delete-organization' organization.pk %}">Delete</button>
+    </td>
+</tr>
+{% endfor %}

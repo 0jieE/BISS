@@ -1,0 +1,10 @@
+{% for profile_organization in profile_organizations %}
+<tr>
+    <td>{{ profile_organization.profile }}</td>
+    <td>{{ profile_organization.organization }}</td>
+    <td>
+        <button type="button" class="btn btn-sm btn-warning js-edit-profile_organization" data-toggle="modal" data-target="#new-profile_organization" data-url="{% url 'edit-profile_organization' profile_organization.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-profile_organization" data-toggle="modal" data-target="#new-profile_organization" data-url="{% url 'delete-profile_organization' profile_organization.pk %}">Delete</button>
+    </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,198 @@
+{% load i18n static admin_adminlte %}
+
+<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+    <!-- Add icons to the links using the .nav-icon class
+           with font-awesome or any other icon font library -->
+
+    {% admin_get_menu as app_list %}
+    {% if app_list %}
+    {% for app in app_list %}
+    {% if app.has_perms and not app.pinned %}
+    <li class="nav-item {% if 'dashboard' in parent %} menu-open {% endif %}">
+      <a class="nav-link {% if app_label != app.label and app.url not in request.path|urlencode  %} collapsed{% endif %}"
+        data-bs-toggle="collapse" data-bs-target="#submenu-{{ app.app_label }}" href="{{ app.url }}">
+        <i class="nav-icon {{ app.icon }}"></i>
+        <p>
+          {{ app.label|slice:10 }}{% if app.label|length > 10 %}..{% endif %}
+          <i class="right fas fa-angle-left"></i>
+        </p>
+      </a>
+
+      {% if app.models %}
+      <ul class="nav nav-treeview">
+        {% for model in app.models %}
+        {% if model.url %}
+        <li class="nav-item">
+          <a class="nav-link {% if 'bootstrap-tables' in segment or model.url in request.path|urlencode %} active {% endif %}"
+            href="{{ model.url }}">
+            <i class="far fa-circle nav-icon"></i>
+            <p>{{ model.label }}</p>
+          </a>
+        </li>
+        {% else %}
+        <li class="nav-item">{{ model.label }}</li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </li>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if request.user.is_superuser %}
+    {% endif %}
+
+    {% if request.user.is_staff %}
+    <li class="nav-header">PROFILES</li>
+    <li class="nav-item">
+      <a href="{% url "profile-list" %}" class="nav-link {% if 'profile' in segment %} active {% endif %}">
+        <i class="nav-icon fas fa-edit"></i>
+        <p>List</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url "profile_occupation-list" %}" class="nav-link {% if 'profile_occupation' in segment %} active {% endif %}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>Occupation Profile</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url "profile_organization-list" %}" class="nav-link {% if 'profile_organization' in segment %} active {% endif %}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>Organization Profile</p>
+      </a>
+    </li>
+    <li class="nav-header">Farms</li>
+    <li class="nav-item">
+      <a href="{% url "farm-list" %}" class="nav-link {% if 'farms' in segment %} active {% endif %}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>Farm List</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url "farm_picture-list" %}" class="nav-link {% if 'farm_pictures' in segment %} active {% endif %}">
+        <i class="fas fa-balance-scale nav-icon"></i>
+        <p>Farm Picture</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url "farm_crop-list" %}" class="nav-link {% if 'farm_crops' in segment %} active {% endif %}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>Farm Crop</p>
+      </a>
+    </li>
+    <li class="nav-header">ADDRESSES</li>
+    <li class="nav-item">
+      <a href="{% url "address-list" %}" class="nav-link {% if 'address' in segment %} active {% endif %}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>Profile Address</p>
+      </a>
+    </li>
+    <li class="nav-header">Pre-Data</li>
+    <li class="nav-item {% if 'addresses' in parent %} menu-open {% endif %}">
+      <a href="#" class="nav-link {% if 'addresses' in parent %} active {% endif %}">
+        <i class="fas fa-university nav-icon"></i>
+        <p>Address</p>
+        <i class="fas fa-angle-left right"></i>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item"> 
+          <a href="{% url "region" %}" class="nav-link {% if 'region' in segment %} active {% endif %}">
+            <i class="fas fa-university nav-icon"></i>
+            <p>Regions</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url "province" %}" class="nav-link {% if 'province' in segment %} active {% endif %}">
+            <i class="fas fa-balance-scale nav-icon"></i>
+            <p>Provinces</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url "district" %}" class="nav-link {% if 'district' in segment %} active {% endif %}">
+            <i class="fas fa-graduation-cap nav-icon"></i>
+            <p>Districts</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url "municipality" %}" class="nav-link {% if 'municipality' in segment %} active {% endif %}">
+            <i class="fas fa-graduation-cap nav-icon"></i>
+            <p>City/Municipality</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url "barangay" %}" class="nav-link {% if 'barangay' in segment %} active {% endif %}">
+            <i class="fas fa-graduation-cap nav-icon"></i>
+            <p>Barangays</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url "purok" %}" class="nav-link {% if 'purok' in segment %} active {% endif %}">
+            <i class="fas fa-graduation-cap nav-icon"></i>
+            <p>Puroks</p>
+          </a>
+        </li>
+      </ul>
+    </li>
+    <li class="nav-item {% if 'farm_management' in parent %} menu-open {% endif %}">
+      <a href="#" class="nav-link {% if 'farm_management' in parent %} active {% endif %}">
+        <i class="fas fa-university nav-icon"></i>
+        <p>Crops</p>
+        <i class="fas fa-angle-left right"></i>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item">
+          <a href="{% url "crop-list" %}" class="nav-link {% if 'crops' in segment %} active {% endif %}">
+            <i class="nav-icon far fa-calendar-alt"></i>
+            <p>Crop Names</p>
+          </a>
+        </li>
+      </ul>
+    </li>
+    <li class="nav-item {% if 'profile-data' in parent %} menu-open {% endif %}">
+      <a href="#" class="nav-link {% if 'profile-data' in parent %} active {% endif %}">
+        <i class="fas fa-university nav-icon"></i>
+        <p>Profile Data</p>
+        <i class="fas fa-angle-left right"></i>
+      </a>
+      <ul class="nav nav-treeview">
+        <li class="nav-item"> 
+          <a href="{% url "tribe-list" %}" class="nav-link {% if 'tribes' in segment %} active {% endif %}">
+            <i class="fas fa-university nav-icon"></i>
+            <p>Tribes</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url "religion-list" %}" class="nav-link {% if 'religions' in segment %} active {% endif %}">
+            <i class="fas fa-balance-scale nav-icon"></i>
+            <p>Religion</p>
+          </a>
+        </li>
+        <li class="nav-itsem">
+          <a href="{% url "occupation-list" %}" class="nav-link {% if 'occupations' in segment %} active {% endif %}">
+            <i class="fas fa-balance-scale nav-icon"></i>
+            <p>Occupations</p>
+          </a>
+        </li>
+        <li class="nav-itsem">
+          <a href="{% url "organization-list" %}" class="nav-link {% if 'organizations' in segment %} active {% endif %}">
+            <i class="fas fa-balance-scale nav-icon"></i>
+            <p>Organization</p>
+          </a>
+        </li>
+      </ul>
+    </li>
+  
+    {% endif %}
+    
+    {% if request.user.is_authenticated %}
+    <li class="nav-item">
+      <a href="{% url 'signout' %}">
+        <i class="fa fa-sign-out-alt nav-icon"></i>
+        Signout
+      </a>
+    </li>
+    {% endif %}            
+    
+  </ul>

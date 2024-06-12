@@ -1,0 +1,191 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %} Farm Picture {% endblock title %}
+
+{% block extrastyle %}
+<!-- DataTables -->
+<link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+{% endblock extrastyle %}
+{% block bodyclass %} hold-transition sidebar-mini {% endblock bodyclass %}
+{% block content %}
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Farm Picture</h1>
+                </div>
+            </div><!-- /.container-fluid -->
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <button type="button" class="btn btn-sm btn-primary float-right js-add-farm_picture" data-toggle="modal" data-target="#new-farm_picture" data-url="{% url 'add-farm_picture' %}">Add new</button>
+                        </div>
+                        <div class="card-body p-10">
+                            <table id="farm_picture-list" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Farm</th>
+                                        <th>Picture</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% include "user/farm/farm_picture/list_farm_picture.html" %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="modal fade" id="new-farm_picture">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+{% endblock content %}
+{% block extra_scripts %}
+<!-- DataTables  & Plugins -->
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+<!-- Page specific script -->
+<script>
+    $(function() {
+        // Function to read and preview the image
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    $('#image-preview').attr('src', e.target.result);
+                    $('#image-preview').show();
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    
+        // Event listener for file input change
+        $(document).on('change', 'input[type="file"]', function() {
+            readURL(this);
+        });
+    
+        // Existing AJAX setup code...
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        const csrftoken = getCookie('csrftoken');
+    
+        function csrfSafeMethod(method) {
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+    
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    
+        var loadForm = function() {
+            var btn = $(this);
+            $.ajax({
+                url: btn.attr('data-url'),
+                type: 'get',
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#new-farm_picture').modal('show');
+                },
+                success: function(data) {
+                    $('#new-farm_picture .modal-content').html(data.html_form);
+                }
+            });
+        };
+    
+        var saveForm = function() {
+            var form = $(this);
+            var formData = new FormData(form[0]);
+            $.ajax({
+                url: form.attr('action'),
+                data: formData,
+                type: form.attr('method'),
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    if (data.form_is_valid) {
+                        $('#farm_picture-list tbody').html(data.farm_picture_list);
+                        $('#new-farm_picture').modal('hide');
+                    } else {
+                        $('#new-farm_picture .modal-content').html(data.html_form);
+                    }
+                }
+            });
+            return false;
+        };
+    
+        // Add farm picture
+        $('.js-add-farm_picture').click(loadForm);
+        $('#new-farm_picture').on('submit', '.js-farm_picture-create-form', saveForm);
+    
+        // Edit farm picture
+        $('#farm_picture-list').on('click', '.js-edit-farm_picture', loadForm);
+        $('#new-farm_picture').on('submit', '.js-farm_picture-edit-form', saveForm);
+    
+        // Delete farm picture
+        $('#farm_picture-list').on('click', '.js-delete-farm_picture', loadForm);
+        $('#new-farm_picture').on('submit', '.js-farm_picture-delete-form', saveForm);
+    
+        // Initialize DataTables
+        $('#farm_picture-list').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+        });
+    });
+    
+</script>
+{% endblock extra_scripts %}

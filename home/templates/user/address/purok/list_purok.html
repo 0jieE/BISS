@@ -1,0 +1,11 @@
+{% for purok in puroks %}
+<tr>
+    <td>{{ purok.purok_name }}</td>
+    <td>{{ purok.barangay.barangay_name }}</td>
+    <td>{{ purok.created_on }}</td>
+    <td> 
+        <button type="button" class="btn btn-sm btn-warning js-edit-purok" data-toggle="modal" data-target="#new-purok"data-url="{% url 'edit-purok' purok.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-purok" data-toggle="modal" data-target="#new-purok" data-url="{%  url 'delete-purok' purok.pk %}">Delete</button>
+    </td>
+</tr>
+{% endfor %}

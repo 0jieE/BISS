@@ -1,0 +1,10 @@
+{% for crop in crops %}
+<tr>
+    <td>{{ crop.crop_name }}</td>
+    <td>{{ crop.crop_description }}</td>
+    <td>
+        <button type="button" class="btn btn-warning btn-sm js-edit-crop" data-toggle="modal" data-target="#new-crop" data-url="{% url 'edit-crop' crop.id %}">Edit</button>
+        <button type="button" class="btn btn-danger btn-sm js-delete-crop" data-toggle="modal" data-target="#new-crop" data-url="{% url 'delete-crop' crop.id %}">Delete</button>
+    </td>
+</tr>
+{% endfor %}

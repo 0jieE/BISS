@@ -1,0 +1,10 @@
+{% for farm in farms %}
+<tr>
+    <td>{{ farm.profile.first_name }} {{ farm.profile.middle_name }} {{ farm.profile.last_name }}</td>
+    <td><a href="#">{{ farm.latitude }}, {{ farm.longitude }}</a></td>
+    <td>
+        <button type="button" class="btn btn-sm btn-info js-edit-farm" data-url="{% url 'edit-farm' farm.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-farm" data-url="{% url 'delete-farm' farm.pk %}">Delete</button>
+    </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,9 @@
+{% for religion in religions %}
+<tr>
+    <td>{{ religion.religion_name }}</td>
+    <td>
+        <button type="button" class="btn btn-sm btn-warning js-edit-religion" data-toggle="modal" data-target="#new-religion" data-url="{% url 'edit-religion' religion.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-religion" data-toggle="modal" data-target="#new-religion" data-url="{% url 'delete-religion' religion.pk %}">Delete</button>
+    </td>
+</tr>
+{% endfor %}

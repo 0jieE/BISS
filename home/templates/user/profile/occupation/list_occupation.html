@@ -1,0 +1,9 @@
+{% for occupation in occupations %}
+<tr>
+    <td>{{ occupation.occupation_name }}</td>
+    <td>
+        <button type="button" class="btn btn-sm btn-warning js-edit-occupation" data-toggle="modal" data-target="#new-occupation" data-url="{% url 'edit-occupation' occupation.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-occupation" data-toggle="modal" data-target="#new-occupation" data-url="{% url 'delete-occupation' occupation.pk %}">Delete</button>
+    </td>
+</tr>
+{% endfor %}

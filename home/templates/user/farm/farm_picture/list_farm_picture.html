@@ -1,0 +1,20 @@
+{% for farm_picture in farm_pictures %}
+<tr>
+    <td>{{ farm_picture.farm }}</td>
+    <td>
+        <img src="{{ farm_picture.picture.url }}" alt="{{ farm_picture.farm }}" style="max-width: 100px; max-height: 100px;">
+    </td>
+    <td>
+        <button class="btn btn-sm btn-info js-edit-farm_picture" data-url="{% url 'edit-farm_picture' farm_picture.pk %}" data-toggle="modal" data-target="#new-farm_picture">
+            Edit
+        </button>
+        <button class="btn btn-sm btn-danger js-delete-farm_picture" data-url="{% url 'delete-farm_picture' farm_picture.pk %}" data-toggle="modal" data-target="#new-farm_picture">
+            Delete
+        </button>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="3" class="text-center">No Farm Pictures available</td>
+</tr>
+{% endfor %}

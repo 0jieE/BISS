@@ -1,0 +1,12 @@
+{% for municipality in municipalities %}
+<tr>
+    <td>{{ municipality.municipality_name }}</td>
+    <td>{{ municipality.zip_code }}</td>
+    <td>{{ municipality.district.district_name }}</td>
+    <td>{{ municipality.created_on }}</td>
+    <td>
+        <button type="button" class="btn btn-sm btn-warning js-edit-municipality" data-toggle="modal" data-target="#new-municipality" data-url="{% url 'edit-municipality' municipality.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-municipality"data-toggle="modal" data-target="#new-municipality" data-url="{% url 'delete-municipality' municipality.pk %}">Delete</button>
+    </td>
+</tr>
+{% endfor %}

@@ -1,0 +1,16 @@
+{% for profile_occupation in profile_occupations %}
+<tr>
+    <td>{{ profile_occupation.profile }}</td>
+    <td>{{ profile_occupation.occupation }}</td>
+    <td>{{ profile_occupation.occupation_description }}</td>
+    <td>{{ profile_occupation.created_on }}</td>
+    <td>
+        <button type="button" class="btn btn-sm btn-warning js-edit-profile-occupation" data-toggle="modal" data-target="#new-profile-occupation" data-url="{% url 'edit-profile-occupation' profile_occupation.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-profile-occupation" data-toggle="modal" data-target="#new-profile-occupation" data-url="{% url 'delete-profile-occupation' profile_occupation.pk %}">Delete</button>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="5">No profile occupations found.</td>
+</tr>
+{% endfor %}
