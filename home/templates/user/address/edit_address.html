@@ -1,5 +1,5 @@
 {% load crispy_forms_tags %}
-<form method="post" action="{% url 'edit-address' form.instance.id %}" class="js-address-edit-form">
+<form method="post" action="{% url 'edit-address' form.instance.pk %}" class="js-address-edit-form">
     {% csrf_token %}
     <div class="modal-header">
         <h4 class="modal-title">Edit Address</h4>
@@ -9,35 +9,30 @@
     </div>
     <div class="modal-body">
         <div class="col-md-12">
-            <label for="id_house_number">House Number:</label>
+            {{ form.profile|as_crispy_field }}
+        </div>
+        <div class="col-md-12">
             {{ form.house_number|as_crispy_field }}
         </div>
         <div class="col-md-12">
-            <label for="id_address_type">Address Type:</label>
             {{ form.address_type|as_crispy_field }}
         </div>
         <div class="col-md-12">
-            <label for="id_region">Region:</label>
             {{ form.region|as_crispy_field }}
         </div>
         <div class="col-md-12">
-            <label for="id_province">Province:</label>
             {{ form.province|as_crispy_field }}
         </div>
         <div class="col-md-12">
-            <label for="id_district">District:</label>
             {{ form.district|as_crispy_field }}
         </div>
         <div class="col-md-12">
-            <label for="id_municipality">Municipality:</label>
             {{ form.municipality|as_crispy_field }}
         </div>
         <div class="col-md-12">
-            <label for="id_barangay">Barangay:</label>
             {{ form.barangay|as_crispy_field }}
         </div>
         <div class="col-md-12">
-            <label for="id_purok">Purok:</label>
             {{ form.purok|as_crispy_field }}
         </div>
     </div>

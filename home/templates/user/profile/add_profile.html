@@ -1,5 +1,6 @@
 {% load crispy_forms_tags %}
-<form method="post" action="{% url 'add-profile' %}" class="js-profile-create-form">
+
+<form method="post" action="{% url 'add-profile' %}" enctype="multipart/form-data" class="js-profile-create-form">
     {% csrf_token %}
     <div class="modal-header">
         <h4 class="modal-title">Add Profile</h4>
@@ -8,6 +9,10 @@
         </button>
     </div>
     <div class="modal-body">
+        <div class="col-md-12">
+            {{ form.picture|as_crispy_field }}
+            <img id="image-preview" src="#" alt="Image Preview" style="display: none; width: 100%; max-width: 100px; margin-top: 10px;"/>
+        </div>
         <div class="col-md-12">
             {{ form.last_name|as_crispy_field }}
         </div>
@@ -73,9 +78,6 @@
         </div>
         <div class="col-md-12">
             {{ form.education|as_crispy_field }}
-        </div>
-        <div class="col-md-12">
-            {{ form.picture|as_crispy_field }}
         </div>
     </div>
     <div class="modal-footer justify-content-between">

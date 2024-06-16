@@ -44,7 +44,7 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="profile-list-body">
+                                <tbody>
                                     {% include "user/profile/list_profile.html" %}
                                 </tbody>
                             </table>
@@ -52,29 +52,55 @@
                     </div>
                 </div>
                 <div class="col-3">
-                    <div id="profile-details" class="card d-none">
-                        <div class="card-body">
-                            <div id="profile-info"></div>
+                    <div class="card d-none" id="profile-details-card">
+                        <div class="card-body" id="profile-details">
                         </div>
                     </div>
                 </div>
                 <div class="col-3">
-                    <div id="profile-address" class="card d-none">
-                        <div class="card-header"><b>Address</b></div>
+                    <div class="card">
                         <div class="card-body">
-                            <div id="address-info"></div>
+                            <b>Address:</b> Purok 10, Poblacion, President Roxas, North Cotabato
+                            <br>
+                            <br>
+                            <b>Occupation:</b> Farmer
                         </div>
                     </div>
-                    <div id="profile-dependents" class="card d-none">
-                        <div class="card-header"><b>Dependents</b></div>
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <b>Details</b>
+                        </div>
                         <div class="card-body">
-                            <div id="dependents-info"></div>
+                            Dependents 1
+                            <br>
+                            Dependents 2
+                            <br>
+                            Dependents 3
+                            <br>
+                            Dependents 4
+                            <br>
+                            (if none display "no dependents")
                         </div>
                     </div>
-                    <div id="profile-farms" class="card d-none">
-                        <div class="card-header"><b>Farms</b></div>
+                    <div class="card card-gray">
+                        <div class="card-header">
+                            <b>Farm</b>
+                        </div>
                         <div class="card-body">
-                            <div id="farms-info"></div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <b>Crops</b>
+                                    <br>
+                                    crop 1
+                                    <br>
+                                    crop 2
+                                    <br>
+                                    crop 3
+                                </div>
+                                <div class="col-8">
+                                    <b style="text-align:center">Location</b>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -208,6 +234,10 @@
         $('#new-profile').on('submit', '.js-profile-delete-form', saveForm);
     });
     $(function() {
+        // Helper function to convert boolean to Yes/No
+        function boolToYesNo(value) {
+            return value ? 'Yes' : 'No';
+        }
         // Initialize DataTables
         $("#profile-list").DataTable({
             "responsive": true, "lengthChange": true, "autoWidth": false,
@@ -215,113 +245,61 @@
             // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
           }).buttons().container().appendTo('#profile-list_wrapper .col-md-12:eq(0)');
 
-        $('#profile-list-body').on('click', '.profile-row', function() {
-        var profileId = $(this).data('profile-id');
-        $.ajax({
-            url: "{% url 'get-profile-details' %}",
-            type: 'GET',
-            data: { profile_id: profileId },
-            dataType: 'json',
-            success: function(data) {
-                console.log(data)
-                // Profile details
-                var profileHtml = `
-                
-                <p><b>Email Address:</b> ${data.email_address}</p>
-                <p><b>Facebook Account:</b> ${data.facebook_account}</p>
-                <p><b>Civil Status:</b> ${data.civil_status}</p>
-                <p><b>Citizenship:</b> ${data.citizenship}</p>
-                <p><b>Religion:</b> ${data.religion}</p>
-                <p><b>Household Head:</b> ${boolToYesNo(data.household_head)}</p>
-                <p><b>4Ps Beneficiary:</b>  ${boolToYesNo(data.beneficiary_4p)}</p>
-                <p><b>Indigenous Group:</b> ${boolToYesNo(data.indigenous_group)}</p>
-                <p><b>Tribe:</b> ${data.tribe}</p>
-                <p><b>Spouse Name:</b> ${data.spouse_name}</p>
-                <p><b>Spouse Occupation:</b> ${data.spouse_occupation}</p>
-                <p><b>Organization:</b> ${boolToYesNo(data.member_organization)}</p>
-                <p><b>Skills:</b> ${data.skills}</p>
-                <p><b>Education:</b>${data.education}</p>
-                <p><b>Pwd:</b> ${boolToYesNo(data.pwd)}</p>
-                <p><b>Registered on:</b> ${data.created_on}</p>
-                `;
-                $('#profile-info').html(profileHtml);
-                $('#profile-details').removeClass('d-none');
-
-                // Address
-                var addressHtml = '';
-                if (data.address.address_type) {
-                    addressHtml = `
-                        <p><b>Address Type:</b> ${data.address.address_type}</p>
-                        <p><b>Address:</b> ${data.address.house_number}, ${data.address.purok}, 
-                        ${data.address.barangay}, ${data.address.municipality}, 
-                        ${data.address.district}, ${data.address.province}, ${data.address.region} </p>`;
-                } else {
-                    addressHtml = '<p>No address available</p>';
-                }
-                $('#address-info').html(addressHtml);
-                $('#profile-address').removeClass('d-none');
-
-                // Dependents
-                var dependentsHtml = '';
-                if (data.dependents.length > 0) {
-                    data.dependents.forEach(function(dep) {
-                        dependentsHtml += `<p><b>Name:</b> ${dep.first_name} ${dep.last_name}
-                            <b>Birth Date:</b> ${dep.birth_date}</p>`;
-                    });
-                } else {
-                    dependentsHtml = '<p>No dependents available</p>';
-                }
-                $('#dependents-info').html(dependentsHtml);
-                $('#profile-dependents').removeClass('d-none');
-
-                // Farms
-                var farmsHtml = '';
-                if (data.farms.length > 0) {
-                    data.farms.forEach(function(farm) {
-                        var cropsHtml = '';
-                        if (farm.farm_crops.length > 0) {
-                            farm.farm_crops.forEach(function(crop) {
-                                cropsHtml += `
-                                    <p><b>Crop Name:</b> ${crop.crop_name}</p>
-                                    <p><b>Area:</b> ${crop.area}</p>
-                                    <p><b>Quantity:</b> ${crop.crop_qnty}</p>
-                                    <p><b>Income:</b> ${crop.income}</p>
-                                    <p><b>Is Farming:</b> ${boolToYesNo(crop.is_farming)}</p>
-                                    <p><b>Description:</b> ${crop.farm_crop_description}</p>`;
-                            });
-                        } else {
-                            cropsHtml = '<p>No crops available</p>';
-                        }
-                        farmsHtml += `
-                            <p><b>Farm Description:</b> ${farm.farm_description}</p>
-                            <p><b>Is Owner:</b> ${boolToYesNo(farm.is_owner)}</p>
-                            <p><b>Owner Name:</b> ${farm.owner_name}</p>
-                            <p><b>Is Tenant:</b> ${boolToYesNo(farm.is_tenant)}</p>
-                            <p><b>Tenant Name:</b> ${farm.tenant_name}</p>
-                            <p><b>Is Maintainer:</b> ${boolToYesNo(farm.is_maintainer)}</p>
-                            <p><b>Maintainer Name:</b> ${farm.maintainer_name}</p>
-                            <p><b>Notes:</b> ${farm.notes}</p>
-                            <p><b>Latitude:</b> ${farm.latitude}</p>
-                            <p><b>Longitude:</b> ${farm.longitude}</p>
-                            <p><b>Altitude:</b> ${farm.altitude}</p>
-                            <p><b>Area:</b> ${farm.area}</p>
-                            <p><b>Farm Type:</b> ${farm.farm_type}</p>
-                            <p><b>Farm Crop:</b> ${farm.farm_crop}</p>
-                            ${cropsHtml}`;
-                    });
-                } else {
-                    farmsHtml = '<p>No farms available</p>';
-                }
-                $('#farms-info').html(farmsHtml);
-                $('#profile-farms').removeClass('d-none');
+          $('#profile-list').on('click', '.profile-row', function() {
+            var profileId = $(this).data('profile-id');
+            var profile = window.profiles.find(p => p.id === profileId);
+        
+            if (profile) {
+                var imageUrl = profile.image_url || '/path/to/default/image.jpg';  // Fallback to default image if image_url is missing
+        
+                $('#profile-details').html(`
+                    <img src="${imageUrl}" alt="Profile Image" style="max-width: 100%; height: 100px;">
+                    <p><b>Email Address:</b> ${profile.email_address}</p>
+                    <p><b>Facebook Account:</b> ${profile.facebook_account}</p>
+                    <p><b>Civil Status:</b> ${profile.civil_status}</p>
+                    <p><b>Citizenship:</b> ${profile.citizenship}</p>
+                    <p><b>Religion:</b> ${profile.religion}</p>
+                    <p><b>Household Head:</b> ${boolToYesNo(profile.household_head)}</p>
+                    <p><b>4Ps Beneficiary:</b>  ${boolToYesNo(profile.beneficiary_4p)}</p>
+                    <p><b>Indigenous Group:</b> ${boolToYesNo(profile.indigenous_group)}</p>
+                    <p><b>Tribe:</b> ${profile.tribe}</p>
+                    <p><b>Spouse Name:</b> ${profile.spouse_name}</p>
+                    <p><b>Spouse Occupation:</b> ${profile.spouse_occupation}</p>
+                    <p><b>Organization:</b> ${boolToYesNo(profile.member_organization)}</p>
+                    <p><b>Skills:</b> ${profile.skills}</p>
+                    <p><b>Pwd:</b> ${boolToYesNo(profile.pwd)}</p>
+                    <p><b>Registered on:</b> ${profile.created_on}</p>
+                `);
+                $('#profile-details-card').removeClass('d-none');
             }
-        });
+        });        
     });
 
-    // Convert boolean to Yes/No
-    function boolToYesNo(value) {
-        return value ? 'Yes' : 'No';
-    }
-});
+    // Preload profiles data into a global variable
+    document.addEventListener('DOMContentLoaded', () => {
+        window.profiles = [];
+        {% for profile in profiles %}
+        window.profiles.push({
+            id: {{ profile.id }},
+            email_address: "{{ profile.email_address }}",
+            facebook_account: "{{ profile.facebook_account }}",
+            civil_status: "{{ profile.civil_status }}",
+            citizenship: "{{ profile.citizenship }}",
+            religion: "{{ profile.religion }}",
+            household_head: {{ profile.household_head|yesno:"true,false" }},
+            beneficiary_4p: {{ profile.beneficiary_4p|yesno:"true,false" }},
+            indigenous_group: {{ profile.indigenous_group|yesno:"true,false" }},
+            tribe: "{{ profile.tribe }}",
+            spouse_name: "{{ profile.spouse_name }}",
+            spouse_occupation: "{{ profile.spouse_occupation }}",
+            member_organization: {{ profile.member_organization|yesno:"true,false" }},
+            skills: "{{ profile.skills }}",
+            pwd: {{ profile.pwd|yesno:"true,false" }},
+            created_on: "{{ profile.created_on }}",
+            image_url: "{{ profile.get_picture_url }}",  // Use the get_picture_url method
+        });
+        {% endfor %}
+    });
+    
 </script>
 {% endblock extra_scripts %}

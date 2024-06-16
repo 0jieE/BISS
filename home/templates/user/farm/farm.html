@@ -5,6 +5,12 @@
 {% block title %} Farm {% endblock title %}
 
 {% block extrastyle %}
+<style>
+    #map-list {
+        height: 400px; /* Adjust the height as needed */
+        width: 100%;
+    }
+</style>
 <!-- DataTables -->
 <link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
 <link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
@@ -31,7 +37,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-6">
-                    <div class="card">
+                    <div class="card card-primary">
                         <div class="card-header">
                             <button type="button" class="btn btn-sm btn-primary float-right js-add-farm" data-toggle="modal" data-target="#new-farm" data-url="{% url 'add-farm' %}">Add new</button>
                         </div>
@@ -52,11 +58,11 @@
                     </div>
                 </div>
             <div class="col-6">
-                <div class="card">
+                <div class="card card-info">
                     <div class="card-header">
-                        <b>Latitude:{{ farms.latitude }}, Longitude:{{ farms.longitude }} , Altitude:{{farms.altitude}}</b>
+                        <b>Farms Location Map</b>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" id="map-list" >
                         
                         <!-- display the map here -->
 
@@ -69,7 +75,7 @@
 
     <!-- Modal for adding/editing farm -->
     <div class="modal fade" id="new-farm">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog modal-lg">
             <div class="modal-content">
             </div>
         </div>
@@ -91,6 +97,7 @@
 <script src="{% static 'plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
 <script src="{% static 'plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
 <script src="{% static 'plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async defer></script>
 
 <script>
     $(function() {
@@ -151,5 +158,19 @@
             "responsive": true,
         });
     });
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map-list'), {
+            zoom: 15,
+            center: {lat: 7.157, lng: 125.051}
+        });
+
+        {% for farm in farms %}
+            new google.maps.Marker({
+                position: {lat: {{ farm.latitude }}, lng: {{ farm.longitude }}},
+                map: map,
+                title: '{{ farm.farm_description }}'
+            });
+        {% endfor %}
+    }
 </script>
 {% endblock extra_scripts %}

@@ -1,7 +1,7 @@
 
 {% load crispy_forms_tags %}
 
-<form method="post" action="{% url 'edit-farm_picture' form.instance.pk %}" enctype="multipart/form-data">
+<form method="post" action="{% url 'edit-farm_picture' form.instance.pk %}" class="js-farm_picture-edit-form" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-header">
         <h4 class="modal-title">Edit Farm Picture</h4>

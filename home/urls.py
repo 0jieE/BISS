@@ -8,8 +8,10 @@ urlpatterns = [
     path('accounts/logout/', as_auth_views.logout_view, name='signout'),
 
 #addresses
-    path('address/', as_address_views.address, name='address-list'),
-    path('add-address/', as_address_views.add_address, name='add-address'),
+    path('address/list', as_address_views.address, name='address-list'),
+    path('address/add', as_address_views.add_address, name='add-address'),
+    path('address/<int:pk>/edit', as_address_views.edit_address, name='edit-address'),
+    path('edit/<int:pk>/edit', as_address_views.delete_address, name='delete-address'),
     #region
     path("region/list",as_address_views.region, name='region'),
     path("region/add",as_address_views.add_region, name='add-region'),
@@ -52,6 +54,7 @@ urlpatterns = [
 
 #profile
     path('profile-list/', as_profile_views.profile, name='profile-list'),
+    path('profile/details/', as_profile_views.get_profile_details, name='get-profile-details'),
     path("profile/add",as_profile_views.add_profile, name='add-profile'),
     path('profile/<int:pk>/edit/', as_profile_views.edit_profile, name='edit-profile'),
     path('profile/<int:pk>/delete/', as_profile_views.delete_profile, name='delete-profile'),
@@ -112,4 +115,5 @@ urlpatterns = [
     path("farm_picture/add",as_farm_views.add_farm_picture, name='add-farm_picture'),
     path('farm_picture/<int:pk>/edit/', as_farm_views.edit_farm_picture, name='edit-farm_picture'),
     path('farm_picture/<int:pk>/delete/', as_farm_views.delete_farm_picture, name='delete-farm_picture'),
+
 ]

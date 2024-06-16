@@ -1,5 +1,9 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+import os
+
+def profile_picture_path(instance, filename):
+    return os.path.join('profile_pictures', filename)
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, first_name, last_name, password=None, **extra_fields):
@@ -99,14 +103,26 @@ class Purok(models.Model):
 class Religion(models.Model):
     religion_name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.religion_name
+
 class Tribe(models.Model):
     tribe_name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.tribe_name
 
 class Organization(models.Model):
     organization_name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.organization_name
+
 class Occupation(models.Model):
     occupation_name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.occupation_name
 
 class Profile(models.Model):
     SEX_CHOICES = [
@@ -155,8 +171,17 @@ class Profile(models.Model):
     skills = models.TextField(blank=True, null=True)
     pwd = models.BooleanField(default=False)
     education = models.CharField(max_length=20, choices=EDUCATION_CHOICES, default='none')
-    picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    picture = models.ImageField(upload_to=profile_picture_path, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
+
+    def get_picture_url(self):
+        if self.picture:
+            return self.picture.url
+        else:
+            return '/profile_pictures/logo1.jpg' 
+
+    def __str__(self):
+        return f"{self.first_name}, {self.middle_name}, {self.last_name}, {self.extension_name}"
 
 class ProfileOccupation(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
@@ -182,9 +207,9 @@ class Farm(models.Model):
     is_maintainer = models.BooleanField(default=False)
     maintainer_name = models.CharField(max_length=255, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
-    latitude = models.DecimalField(max_digits=10, decimal_places=6)
-    longitude = models.DecimalField(max_digits=10, decimal_places=6)
-    altitude = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    latitude = models.DecimalField(max_digits=20, decimal_places=16)
+    longitude = models.DecimalField(max_digits=20, decimal_places=16)
+    altitude = models.DecimalField(max_digits=20, decimal_places=16, blank=True, null=True)
     area = models.DecimalField(max_digits=10, decimal_places=2)
     farm_type = models.CharField(max_length=10, choices=FARM_TYPE_CHOICES, default='lowland')
     farm_crop = models.CharField(max_length=10, choices=FARM_CROP_CHOICES, default='intercrop')
@@ -193,6 +218,9 @@ class Farm(models.Model):
 class Crop(models.Model):
     crop_name = models.CharField(max_length=255)
     crop_description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.crop_name
 
 class FarmCrop(models.Model):
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE)

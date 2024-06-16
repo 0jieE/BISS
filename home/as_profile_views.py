@@ -3,26 +3,117 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.contrib.auth import logout, authenticate,login
 from django.http import JsonResponse
-from .models import Profile, Religion, Tribe, Organization,Occupation, ProfileOccupation,ProfileOrganization, Dependents
+from .models import Profile, Religion, Tribe, Organization,Occupation, ProfileOccupation,ProfileOrganization, Dependents, Address,\
+                    Farm, FarmCrop, Religion, Tribe, Region, Province, District, CityMunicipality, Barangay, Purok
 from .forms import ProfileForm, ReligionForm, TribeForm,OccupationForm ,OrganizationForm, ProfileOccupationForm, ProfileOrganizationForm, DependentsForm
+from datetime import date
+import decimal
 
 #profile
 ###############################################################################################################
+def calculate_age(birth_date):
+    today = date.today()
+    return today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+
 
 @login_required
 def profile(request):
     profiles = Profile.objects.all()
     context = {
-        'parent': 'profiles',
+        'parent': '',
         'segment': 'profiles',
         'profiles': profiles,
     }
     return render(request, 'user/profile/profile.html', context)
 
+
+def serialize_model_instance(instance, fields):
+    """Helper function to serialize a model instance to a dictionary."""
+    data = {}
+    for field in fields:
+        value = getattr(instance, field)
+        if isinstance(value, (Religion, Tribe, Region, Province, District, CityMunicipality, Barangay, Purok)):
+            data[field] = str(value)
+        elif hasattr(value, 'isoformat'):  # For datetime fields
+            data[field] = value.isoformat()
+        elif isinstance(value, (int, float, bool, str)):
+            data[field] = value
+        elif isinstance(value, decimal.Decimal):
+            data[field] = float(value)
+        else:
+            data[field] = str(value)
+    return data
+
+def get_profile_details(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'GET':
+        profile_id = request.GET.get('profile_id')
+        profile = get_object_or_404(Profile, pk=profile_id)
+
+        # Fetch related Address
+        address = Address.objects.filter(profile=profile).first()
+        address_fields = [
+            'address_type', 'house_number', 'region', 'province',
+            'district', 'municipality', 'barangay', 'purok'
+        ]
+        address_data = serialize_model_instance(address, address_fields) if address else {}
+
+        # Fetch related Dependents
+        dependents = Dependents.objects.filter(profile=profile)
+        dependents_fields = ['first_name', 'last_name', 'ext_name', 'birth_date']
+        dependents_data = [
+            serialize_model_instance(dep, dependents_fields) for dep in dependents
+        ] if dependents.exists() else []
+
+        # Fetch related Farms and their FarmCrops
+        farms = Farm.objects.filter(profile=profile)
+        farms_data = []
+        for farm in farms:
+            farm_crops = FarmCrop.objects.filter(farm=farm)
+            farm_crop_fields = ['crop', 'area', 'crop_qnty', 'income', 'is_farming', 'farm_crop_description']
+            farm_crops_data = [
+                serialize_model_instance(farm_crop, farm_crop_fields) for farm_crop in farm_crops
+            ]
+            farm_fields = ['farm_description', 'is_owner', 'owner_name', 'is_tenant', 'tenant_name',
+                           'is_maintainer', 'maintainer_name', 'notes', 'latitude', 'longitude',
+                           'altitude', 'area', 'farm_type', 'farm_crop']
+            farm_data = serialize_model_instance(farm, farm_fields)
+            farm_data['farm_crops'] = farm_crops_data
+            farms_data.append(farm_data)
+
+        # Serialize the profile object
+        profile_fields = [
+            'email_address', 'facebook_account', 'civil_status', 'citizenship',
+            'household_head', 'beneficiary_4p', 'indigenous_group', 'spouse_name',
+            'spouse_occupation', 'member_organization', 'skills', 'pwd', 'created_on', 'education'
+        ]
+        data = serialize_model_instance(profile, profile_fields)
+        data.update({
+            # 'image_url': profile.get_picture_url() if callable(profile.get_picture_url) else profile.get_picture_url,
+            'religion': str(profile.religion),
+            'tribe': str(profile.tribe) if profile.tribe else None,
+            'created_on': profile.created_on.isoformat() if profile.created_on else None,
+            'address': address_data,
+            'dependents': dependents_data,
+            'farms': farms_data
+        })
+        return JsonResponse(data)
+    else:
+        return JsonResponse({'error': 'Invalid request'})
+
+
+
+
+
+
+
+
+
+
+
 @login_required
 def add_profile(request):
     if request.method == 'POST':
-        form = ProfileForm(request.POST)
+        form = ProfileForm(request.POST, request.FILES)
     else:
         form = ProfileForm()
     return save_profile(request, form, 'user/profile/add_profile.html')
@@ -31,7 +122,7 @@ def add_profile(request):
 def edit_profile(request, pk):
     profile = get_object_or_404(Profile, pk=pk)
     if request.method == 'POST':
-        form = ProfileForm(request.POST, instance=profile)
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
     else:
         form = ProfileForm(instance=profile)
     return save_profile(request, form, 'user/profile/edit_profile.html')
@@ -314,7 +405,7 @@ def profile_organization(request):
 @login_required
 def add_profile_organization(request):
     if request.method == 'POST':
-        form = ProfileOrganizationForm(request.POST)
+        form = ProfileOrganizationForm(request.POST, request.FILES)
     else:
         form = ProfileOrganizationForm()
     return save_profile_organization(request, form, 'user/profile/profile_organization/add_profile_organization.html')
@@ -323,7 +414,7 @@ def add_profile_organization(request):
 def edit_profile_organization(request, pk):
     profile_organization = get_object_or_404(ProfileOrganization, pk=pk)
     if request.method == 'POST':
-        form = ProfileOrganizationForm(request.POST, instance=profile_organization)
+        form = ProfileOrganizationForm(request.POST, request.FILES, instance=profile_organization)
     else:
         form = ProfileOrganizationForm(instance=profile_organization)
     return save_profile_organization(request, form, 'user/profile/profile_organization/edit_profile_organization.html')

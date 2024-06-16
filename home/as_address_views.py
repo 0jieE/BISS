@@ -8,62 +8,66 @@ from .forms import AddressForm, RegionForm, ProvinceForm, DistrictForm, CityMuni
 
 #address
 #########################################################################################################
+
+@login_required
 def address(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    else:
-        addresses = Address.objects.all()
-        context = {
-                'parent': '',
-                'segment': 'addresses',
-                'addresses':addresses,
-        }
-        return render(request, 'user/address/address.html',context)
+    addresses = Address.objects.all()
+    context = {
+        'parent': '',
+        'segment': 'addresses',
+        'addresses': addresses,
+    }
+    return render(request, 'user/address/address.html', context)
 
-
+@login_required
 def add_address(request):
-        if(request.method == 'POST'):
-                form = AddressForm(request.POST)
-        else:    
-                form = AddressForm()
+    if request.method == 'POST':
+        form = AddressForm(request.POST)
+    else:
+        form = AddressForm()
 
-        return save_address(request, form, 'user/address/add_address.html')
+    return save_address(request, form, 'user/address/add_address.html')
 
-def edit_address(request,pk):
-        address = get_object_or_404(Address, pk=pk)
-        if(request.method == 'POST'):
-                form = AddressForm(request.POST, instance=address)
-        else:    
-                form = AddressForm(instance=address)
-        return save_address(request, form, 'user/address/edit_address.html')
+@login_required
+def edit_address(request, pk):
+    address = get_object_or_404(Address, pk=pk)
+    if request.method == 'POST':
+        form = AddressForm(request.POST, instance=address)
+    else:
+        form = AddressForm(instance=address)
 
+    return save_address(request, form, 'user/address/edit_address.html')
 
-def delete_address(request,pk):
-        address = get_object_or_404(Address, pk=pk)
-        data = dict()
-        if request.method == 'POST':
-            address.delete()
-            data['form_is_valid'] = True
-            addresses= Address.objects.all()
-            data['address_list'] = render_to_string('user/address/list_address.html',{'addresses':addresses})
-        else:    
-            context = {'address':address}
-            data['html_form'] = render_to_string('user/address/delete_address.html',context,request=request)
-        return JsonResponse(data)
+@login_required
+def delete_address(request, pk):
+    address = get_object_or_404(Address, pk=pk)
+    data = dict()
+
+    if request.method == 'POST':
+        address.delete()
+        data['form_is_valid'] = True
+        addresses = Address.objects.all()
+        data['address_list'] = render_to_string('user/address/list_address.html', {'addresses': addresses})
+    else:
+        context = {'address': address}
+        data['html_form'] = render_to_string('user/address/delete_address.html', context, request=request)
+
+    return JsonResponse(data)
 
 def save_address(request, form, template_name):
     data = dict()
     if form.is_valid():
         form.save()
         data['form_is_valid'] = True
-        addresses= Address.objects.all()
-        data['address_list'] = render_to_string('user/address/list_address.html',{'addresses':addresses})
+        addresses = Address.objects.all()
+        data['address_list'] = render_to_string('user/address/list_address.html', {'addresses': addresses})
     else:
         data['form_is_valid'] = False
 
-    context = {'form':form}
+    context = {'form': form}
     data['html_form'] = render_to_string(template_name, context, request=request)
     return JsonResponse(data)
+
 
 #regions
 #########################################################################################################

@@ -63,6 +63,18 @@
         <p>Organization Profile</p>
       </a>
     </li>
+    <li class="nav-item">
+      <a href="{% url "address-list" %}" class="nav-link {% if 'address' in segment %} active {% endif %}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>Address Profile</p>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url "dependents-list" %}" class="nav-link {% if 'dependents' in segment %} active {% endif %}">
+        <i class="nav-icon far fa-calendar-alt"></i>
+        <p>Dependents</p>
+      </a>
+    </li>
     <li class="nav-header">Farms</li>
     <li class="nav-item">
       <a href="{% url "farm-list" %}" class="nav-link {% if 'farms' in segment %} active {% endif %}">
@@ -80,13 +92,6 @@
       <a href="{% url "farm_crop-list" %}" class="nav-link {% if 'farm_crops' in segment %} active {% endif %}">
         <i class="nav-icon far fa-calendar-alt"></i>
         <p>Farm Crop</p>
-      </a>
-    </li>
-    <li class="nav-header">ADDRESSES</li>
-    <li class="nav-item">
-      <a href="{% url "address-list" %}" class="nav-link {% if 'address' in segment %} active {% endif %}">
-        <i class="nav-icon far fa-calendar-alt"></i>
-        <p>Profile Address</p>
       </a>
     </li>
     <li class="nav-header">Pre-Data</li>
