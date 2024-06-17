@@ -1,16 +1,16 @@
 
-{% for farmcrop in farmcrops %}
+{% for farmcrop in farm_crops %}
 <tr>
-    <td>{{ farmcrop.farm.name }}</td>
+    <td>{{ farmcrop.farm }}</td>
     <td>{{ farmcrop.crop.crop_name }}</td>
-    <td>{{ farmcrop.area }}</td>
+    <td>{{ farmcrop.area }} sq meters</td>
     <td>{{ farmcrop.crop_qnty }}</td>
     <td>{{ farmcrop.income }}</td>
     <td>{{ farmcrop.is_farming|yesno:"Yes,No" }}</td>
     <td>{{ farmcrop.farm_crop_description }}</td>
     <td>
-        <button type="button" class="btn btn-warning btn-sm js-edit-farmcrop" data-toggle="modal" data-target="#new-farmcrop" data-url="{% url 'edit-farmcrop' farmcrop.id %}">Edit</button>
-        <button type="button" class="btn btn-danger btn-sm js-delete-farmcrop" data-toggle="modal" data-target="#new-farmcrop" data-url="{% url 'delete-farmcrop' farmcrop.id %}">Delete</button>
+        <button type="button" class="btn btn-warning btn-sm js-edit-farmcrop" data-toggle="modal" data-target="#new-farmcrop" data-url="{% url 'edit-farmcrop' farmcrop.pk %}">Edit</button>
+        <button type="button" class="btn btn-danger btn-sm js-delete-farmcrop" data-toggle="modal" data-target="#new-farmcrop" data-url="{% url 'delete-farmcrop' farmcrop.pk %}">Delete</button>
     </td>
 </tr>
 {% endfor %}

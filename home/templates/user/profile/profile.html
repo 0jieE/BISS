@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
 <link rel="stylesheet" href="{% static 'plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
 <link rel="stylesheet" href="{% static 'plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+
+<title>Farm Form</title>
+
 {% endblock extrastyle %}
 
 {% block bodyclass %} hold-transition sidebar-mini {% endblock bodyclass %}
@@ -28,19 +31,18 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-6">
+                <div class="col-5">
                     <div class="card card-primary">
                         <div class="card-header">
                             Profile table
                             <button type="button" class="btn btn-sm btn-primary float-right js-add-profile" data-toggle="modal" data-target="#new-profile" data-url="{% url "add-profile" %}">Add new</button>
                         </div>
                         <div class="card-body">
-                            <table id="profile-list" class="table table-hover">
+                            <table id="profile-list" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
                                         <th>Name</th>
                                         <th>Gender</th>
-                                        <th>Contact Number</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -51,7 +53,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-3">
+                <div class="col-4">
                     <div id="profile-details" class="card d-none">
                         <div class="card-body">
                             <div id="profile-info"></div>
@@ -60,19 +62,39 @@
                 </div>
                 <div class="col-3">
                     <div id="profile-address" class="card d-none">
-                        <div class="card-header"><b>Address</b></div>
                         <div class="card-body">
-                            <div id="address-info"></div>
+                            <b><a href="#">ADDRESSES</a></b>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Address</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="address-info">
+                        
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div id="profile-dependents" class="card d-none">
-                        <div class="card-header"><b>Dependents</b></div>
                         <div class="card-body">
-                            <div id="dependents-info"></div>
+                            <b><a href="#">DEPENDENTS</a></b>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Age</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dependents-info">
+                        
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     <div id="profile-farms" class="card d-none">
-                        <div class="card-header"><b>Farms</b></div>
+                        <div class="card-header"><b><a href="#">FARMS</a></b></div>
                         <div class="card-body">
                             <div id="farms-info"></div>
                         </div>
@@ -223,53 +245,164 @@
             data: { profile_id: profileId },
             dataType: 'json',
             success: function(data) {
-                console.log(data)
+                //Profile Occupation
+                var occupationList = '';
+                var profileOccupationHtml = '';
+                if (data.profile_occupations.length == 1){
+                    data.profile_occupations.forEach(function(occ) {
+                        occupationList += `${occ.occupation}, `;
+                    });
+                    profileOccupationHtml = `
+                                <p><b>Occupation: </b>${occupationList}<a href="#"><i class="fa fa-pen float-right"></i></a></p>`;
+                }
+                else if (data.profile_occupations.length > 1){
+                    data.profile_occupations.forEach(function(occ) {
+                        occupationList += `${occ.occupation}, `;
+                    });
+                    profileOccupationHtml = `
+                                <p><b>Occupations: </b>${occupationList}<a href="#"><i class="fa fa-pen float-right"></i></a></p>`;
+                }
+                else {
+                    profileOccupationHtml = `
+                                <p><b>Occupation: </b>none<a href="#"><i class="fa fa-plus float-right"></i></a></p>`;
+                }
+                //Profile organization
+                var organizationList = '';
+                var profileorganizationHtml = '';
+                if (data.profile_organizations.length == 1){
+                    data.profile_organizations.forEach(function(org) {
+                        organizationList += `
+                                ${org.organization} <a href="#"><i class="fa fa-pen float-right"></i></a>`;
+                    });
+                    profileorganizationHtml = `
+                                <p><b>Organization: </b>${organizationList}</p>`;
+                }
+                else if (data.profile_organizations.length > 1){
+                    data.profile_organizations.forEach(function(org) {
+                        organizationList += `
+                               <li style="text-align:center;"> ${org.organization} <a href="#"><i class="fa fa-pen float-right"></i></a></li>`;
+                    });
+                    profileorganizationHtml = `
+                                <b>Organizations</b>
+                                <p >${organizationList}</p>`;
+                }
+                else {
+                    profileorganizationHtml = `
+                                <p><b>Organization: </b>none<a href="#"><i class="fa fa-plus float-right"></i></a></p>`;
+                }
+
                 // Profile details
                 var profileHtml = `
-                
-                <p><b>Email Address:</b> ${data.email_address}</p>
-                <p><b>Facebook Account:</b> ${data.facebook_account}</p>
-                <p><b>Civil Status:</b> ${data.civil_status}</p>
-                <p><b>Citizenship:</b> ${data.citizenship}</p>
-                <p><b>Religion:</b> ${data.religion}</p>
-                <p><b>Household Head:</b> ${boolToYesNo(data.household_head)}</p>
-                <p><b>4Ps Beneficiary:</b>  ${boolToYesNo(data.beneficiary_4p)}</p>
-                <p><b>Indigenous Group:</b> ${boolToYesNo(data.indigenous_group)}</p>
-                <p><b>Tribe:</b> ${data.tribe}</p>
-                <p><b>Spouse Name:</b> ${data.spouse_name}</p>
-                <p><b>Spouse Occupation:</b> ${data.spouse_occupation}</p>
-                <p><b>Organization:</b> ${boolToYesNo(data.member_organization)}</p>
-                <p><b>Skills:</b> ${data.skills}</p>
-                <p><b>Education:</b>${data.education}</p>
-                <p><b>Pwd:</b> ${boolToYesNo(data.pwd)}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                    <p><b> ${data.first_name} ${data.middle_name} ${data.last_name}</b></p>
+                    <p><b>Gender:</b> ${data.gender}</p>
+                    <p><b>Age:</b></p>
+                    <p><b>Contact #:</b> ${data.contact_no}</p>
+                    </div>
+                    <div class="col-md-6">
+                    <img src="${data.image_url}" alt="Profile Image" style="max-width: 100%; height: 100px;">
+                    </div>
+                </div>
+                <div class="col-md-12 row">
+                    <p><b><a href="#">PERSONAL DETAILS</a></b></p>
+                </div>
+                <div class="row">
+                <div class="col-md-6">
+                        <p><b>Household Head:</b> ${boolToYesNo(data.household_head)}</p>
+                        <p><b>4Ps Beneficiary:</b>  ${boolToYesNo(data.beneficiary_4p)}</p>
+                        <p><b>Indigenous Group:</b> ${boolToYesNo(data.indigenous_group)}</p>
+                        <p><b>Pwd:</b> ${boolToYesNo(data.pwd)}</p>
+                        ${profileOccupationHtml}
+                    </div>
+                    <div class="col-md-6">
+                        <p><b>Civil Status:</b> ${data.civil_status}</p>
+                        <p><b>Citizenship:</b> ${data.citizenship}</p>
+                        <p><b>Religion:</b> ${data.religion}</p>
+                        <p><b>Tribe:</b> ${data.tribe}</p>
+                        ${profileorganizationHtml}
+                    </div>
+                </div>
+                <div class="col-md-12 row">
+                    <p><b><a href="#">SPOUSE</a></b></p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><b>Spouse Name:</b> ${data.spouse_name}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><b>Spouse Occupation:</b> ${data.spouse_occupation}</p> 
+                    </div>
+                </div>
+                <div class="col-md-12 row">
+                    <p><b><a href="#">SOCIAL MEDIA</a></b></p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><b>Email:</b> ${data.email_address}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><b>Facebook:</b> ${data.facebook_account}</p>
+                    </div>
+                </div>
+                <div class="col-md-12 row">
+                    <p><b><a href="#">OTHERS</a></b></p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><b>Education:</b>${data.education}</p>
                 <p><b>Registered on:</b> ${data.created_on}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><b>Skills:</b> ${data.skills}</p>
+                    </div>
+                </div>
                 `;
                 $('#profile-info').html(profileHtml);
                 $('#profile-details').removeClass('d-none');
 
                 // Address
                 var addressHtml = '';
-                if (data.address.address_type) {
+                var addressList = '';
+                if (data.address.length > 0) {
+                    data.address.forEach(function(add) {
+                    addressList += `
+                        <tr>
+                            <td> ${add.address_type}</td>
+                            <td> ${add.house_number}, ${add.purok}, 
+                            ${add.barangay}, ${add.municipality}, 
+                            ${add.district}, ${add.province}, ${add.region}   <a href="#"><i class="fa fa-pen float-right"></i></a></td>
+                        </tr>`;
+                    });
                     addressHtml = `
-                        <p><b>Address Type:</b> ${data.address.address_type}</p>
-                        <p><b>Address:</b> ${data.address.house_number}, ${data.address.purok}, 
-                        ${data.address.barangay}, ${data.address.municipality}, 
-                        ${data.address.district}, ${data.address.province}, ${data.address.region} </p>`;
+                            ${addressList}
+                            <tr> 
+                                <td colspan="2"><a href="#"><i class="fa fa-plus"></i></a></td>
+                            </tr>`;
                 } else {
-                    addressHtml = '<p>No address available</p>';
+                    addressHtml = '<tr><td colspan="2"><a href="#"><i class="fa fa-plus"></i></a></td></tr>';
                 }
                 $('#address-info').html(addressHtml);
                 $('#profile-address').removeClass('d-none');
 
                 // Dependents
                 var dependentsHtml = '';
+                var dependentsList = '';
                 if (data.dependents.length > 0) {
                     data.dependents.forEach(function(dep) {
-                        dependentsHtml += `<p><b>Name:</b> ${dep.first_name} ${dep.last_name}
-                            <b>Birth Date:</b> ${dep.birth_date}</p>`;
+                        dependentsList += `
+                            <tr> 
+                                <td>${dep.first_name} ${dep.last_name}</td>
+                                <td>age     <a href="#"><i class="fa fa-pen float-right"></i></a></td>
+                            </tr>`;
                     });
+                    dependentsHtml = `
+                            ${dependentsList}
+                            <tr> 
+                                <td colspan="2"><a href="#"><i class="fa fa-plus"></i></a></td>
+                             </tr>`;
                 } else {
-                    dependentsHtml = '<p>No dependents available</p>';
+                    dependentsHtml = '<tr><td colspan="2"><a href="#"><i class="fa fa-plus"></i></a></td></tr>';
                 }
                 $('#dependents-info').html(dependentsHtml);
                 $('#profile-dependents').removeClass('d-none');
@@ -282,32 +415,44 @@
                         if (farm.farm_crops.length > 0) {
                             farm.farm_crops.forEach(function(crop) {
                                 cropsHtml += `
-                                    <p><b>Crop Name:</b> ${crop.crop_name}</p>
-                                    <p><b>Area:</b> ${crop.area}</p>
-                                    <p><b>Quantity:</b> ${crop.crop_qnty}</p>
-                                    <p><b>Income:</b> ${crop.income}</p>
-                                    <p><b>Is Farming:</b> ${boolToYesNo(crop.is_farming)}</p>
-                                    <p><b>Description:</b> ${crop.farm_crop_description}</p>`;
+                                    <p><b>Crops:</b> ${crop.crop}</p>`;
                             });
                         } else {
                             cropsHtml = '<p>No crops available</p>';
+                            }
+                        if (farm.is_owner)
+                        {
+                            farmsHtml += `
+                                <p><b>Farm Description:</b> ${farm.farm_description}</p>
+                                <p><b>Is Owner:</b> ${boolToYesNo(farm.is_owner)}</p>
+                                <p><b>Area:</b> ${farm.area}</p>
+                                <p><b>Farm Type:</b> ${farm.farm_type}</p>
+                                <p><b>Farm Crop:</b> ${farm.farm_crop}</p>
+                                ${cropsHtml}
+                                <p><a href="#">view more details on farm list</a></p>`;
                         }
-                        farmsHtml += `
-                            <p><b>Farm Description:</b> ${farm.farm_description}</p>
-                            <p><b>Is Owner:</b> ${boolToYesNo(farm.is_owner)}</p>
-                            <p><b>Owner Name:</b> ${farm.owner_name}</p>
-                            <p><b>Is Tenant:</b> ${boolToYesNo(farm.is_tenant)}</p>
-                            <p><b>Tenant Name:</b> ${farm.tenant_name}</p>
-                            <p><b>Is Maintainer:</b> ${boolToYesNo(farm.is_maintainer)}</p>
-                            <p><b>Maintainer Name:</b> ${farm.maintainer_name}</p>
-                            <p><b>Notes:</b> ${farm.notes}</p>
-                            <p><b>Latitude:</b> ${farm.latitude}</p>
-                            <p><b>Longitude:</b> ${farm.longitude}</p>
-                            <p><b>Altitude:</b> ${farm.altitude}</p>
-                            <p><b>Area:</b> ${farm.area}</p>
-                            <p><b>Farm Type:</b> ${farm.farm_type}</p>
-                            <p><b>Farm Crop:</b> ${farm.farm_crop}</p>
-                            ${cropsHtml}`;
+                        else if (farm.is_tenat)
+                        {
+                            farmsHtml += `
+                                <p><b>Farm Description:</b> ${farm.farm_description}</p>
+                                <p><b>Is Tenant:</b> ${boolToYesNo(farm.is_tenant)}</p>
+                                <p><b>Area:</b> ${farm.area}</p>
+                                <p><b>Farm Type:</b> ${farm.farm_type}</p>
+                                <p><b>Farm Crop:</b> ${farm.farm_crop}</p>
+                                ${cropsHtml}
+                                <p><a href="#">view more details on farm list</a></p>`;
+                        }
+                        else if (farm.is_maintainer)
+                        {
+                            farmsHtml += `
+                                <p><b>Farm Description:</b> ${farm.farm_description}</p>
+                                <p><b>Owner Name:</b> ${farm.owner_name}</p>
+                                <p><b>Area:</b> ${farm.area}</p>
+                                <p><b>Farm Type:</b> ${farm.farm_type}</p>
+                                <p><b>Farm Crop:</b> ${farm.farm_crop}</p>
+                                ${cropsHtml}
+                                <p><a href="#">view more details on farm list</a></p>`;
+                        }
                     });
                 } else {
                     farmsHtml = '<p>No farms available</p>';

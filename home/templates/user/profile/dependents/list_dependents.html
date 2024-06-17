@@ -8,8 +8,8 @@
     <td>{{ dependent.birth_date }}</td>
     <td>{{ dependent.education }}</td>
     <td>
-        <button type="button" class="btn btn-sm btn-warning js-edit-dependent" data-toggle="modal" data-target="#new-dependent" data-url="{% url "edit-dependent" d.pk%}">Edit</button>
-        <button type="button" class="btn btn-sm btn-danger js-delete-dependent" data-toggle="modal" data-target="#new-dependent" data-url="{% url "delete-dependent" d.pk%}">Delete</button>
+        <button type="button" class="btn btn-sm btn-warning js-edit-dependent" data-toggle="modal" data-target="#new-dependent" data-url="{% url "edit-dependent" dependent.pk%}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger js-delete-dependent" data-toggle="modal" data-target="#new-dependent" data-url="{% url "delete-dependent" dependent.pk%}">Delete</button>
     </td>
 </tr>
 {% empty %}

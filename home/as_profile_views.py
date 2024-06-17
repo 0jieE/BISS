@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth import logout, authenticate,login
 from django.http import JsonResponse
 from .models import Profile, Religion, Tribe, Organization,Occupation, ProfileOccupation,ProfileOrganization, Dependents, Address,\
-                    Farm, FarmCrop, Religion, Tribe, Region, Province, District, CityMunicipality, Barangay, Purok
+                    Farm, FarmCrop, Region, Province, District, CityMunicipality, Barangay, Purok
 from .forms import ProfileForm, ReligionForm, TribeForm,OccupationForm ,OrganizationForm, ProfileOccupationForm, ProfileOrganizationForm, DependentsForm
 from datetime import date
 import decimal
@@ -32,7 +32,7 @@ def serialize_model_instance(instance, fields):
     data = {}
     for field in fields:
         value = getattr(instance, field)
-        if isinstance(value, (Religion, Tribe, Region, Province, District, CityMunicipality, Barangay, Purok)):
+        if isinstance(value, (Religion, Tribe, ProfileOccupation, ProfileOrganization, Region, Province, District, CityMunicipality, Barangay, Purok)):
             data[field] = str(value)
         elif hasattr(value, 'isoformat'):  # For datetime fields
             data[field] = value.isoformat()
@@ -45,69 +45,75 @@ def serialize_model_instance(instance, fields):
     return data
 
 def get_profile_details(request):
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and request.method == 'GET':
-        profile_id = request.GET.get('profile_id')
-        profile = get_object_or_404(Profile, pk=profile_id)
+    profile_id = request.GET.get('profile_id')
+    profile = get_object_or_404(Profile, pk=profile_id)
 
-        # Fetch related Address
-        address = Address.objects.filter(profile=profile).first()
-        address_fields = [
-            'address_type', 'house_number', 'region', 'province',
-            'district', 'municipality', 'barangay', 'purok'
+    # Fetch related Address
+    address = Address.objects.filter(profile=profile)
+    address_fields = [
+        'address_type', 'house_number', 'region', 'province',
+        'district', 'municipality', 'barangay', 'purok'
+    ]
+    address_data = [serialize_model_instance(add, address_fields) for add in address] if address.exists() else []
+
+    # Fetch related Dependents
+    dependents = Dependents.objects.filter(profile=profile)
+    dependents_fields = ['first_name', 'last_name', 'ext_name', 'birth_date']
+    dependents_data = [
+        serialize_model_instance(dep, dependents_fields) for dep in dependents
+    ] if dependents.exists() else []
+
+    # Fetch related Farms and their FarmCrops
+    farms = Farm.objects.filter(profile=profile)
+    farms_data = []
+    for farm in farms:
+        farm_crops = FarmCrop.objects.filter(farm=farm)
+        farm_crop_fields = ['crop', 'area', 'crop_qnty', 'income', 'is_farming', 'farm_crop_description']
+        farm_crops_data = [
+            serialize_model_instance(farm_crop, farm_crop_fields) for farm_crop in farm_crops
         ]
-        address_data = serialize_model_instance(address, address_fields) if address else {}
+        farm_fields = ['farm_description', 'is_owner', 'owner_name', 'is_tenant', 'tenant_name',
+                        'is_maintainer', 'maintainer_name', 'notes', 'latitude', 'longitude',
+                        'altitude', 'area', 'farm_type', 'farm_crop']
+        farm_data = serialize_model_instance(farm, farm_fields)
+        farm_data['farm_crops'] = farm_crops_data
+        farms_data.append(farm_data)
 
-        # Fetch related Dependents
-        dependents = Dependents.objects.filter(profile=profile)
-        dependents_fields = ['first_name', 'last_name', 'ext_name', 'birth_date']
-        dependents_data = [
-            serialize_model_instance(dep, dependents_fields) for dep in dependents
-        ] if dependents.exists() else []
+    # Fetch related ProfileOrganizations
+    profile_organizations = ProfileOrganization.objects.filter(profile=profile)
+    profile_organization_fields = ['organization']
+    profile_organizations_data = [
+        serialize_model_instance(org, profile_organization_fields) for org in profile_organizations
+    ] if profile_organizations.exists() else []
 
-        # Fetch related Farms and their FarmCrops
-        farms = Farm.objects.filter(profile=profile)
-        farms_data = []
-        for farm in farms:
-            farm_crops = FarmCrop.objects.filter(farm=farm)
-            farm_crop_fields = ['crop', 'area', 'crop_qnty', 'income', 'is_farming', 'farm_crop_description']
-            farm_crops_data = [
-                serialize_model_instance(farm_crop, farm_crop_fields) for farm_crop in farm_crops
-            ]
-            farm_fields = ['farm_description', 'is_owner', 'owner_name', 'is_tenant', 'tenant_name',
-                           'is_maintainer', 'maintainer_name', 'notes', 'latitude', 'longitude',
-                           'altitude', 'area', 'farm_type', 'farm_crop']
-            farm_data = serialize_model_instance(farm, farm_fields)
-            farm_data['farm_crops'] = farm_crops_data
-            farms_data.append(farm_data)
+    # Fetch related ProfileOccupations
+    profile_occupations = ProfileOccupation.objects.filter(profile=profile)
+    profile_occupation_fields = ['occupation', 'occupation_description']
+    profile_occupations_data = [
+        serialize_model_instance(occ, profile_occupation_fields) for occ in profile_occupations
+    ] if profile_occupations.exists() else []
 
-        # Serialize the profile object
-        profile_fields = [
-            'email_address', 'facebook_account', 'civil_status', 'citizenship',
-            'household_head', 'beneficiary_4p', 'indigenous_group', 'spouse_name',
-            'spouse_occupation', 'member_organization', 'skills', 'pwd', 'created_on', 'education'
-        ]
-        data = serialize_model_instance(profile, profile_fields)
-        data.update({
-            # 'image_url': profile.get_picture_url() if callable(profile.get_picture_url) else profile.get_picture_url,
-            'religion': str(profile.religion),
-            'tribe': str(profile.tribe) if profile.tribe else None,
-            'created_on': profile.created_on.isoformat() if profile.created_on else None,
-            'address': address_data,
-            'dependents': dependents_data,
-            'farms': farms_data
-        })
-        return JsonResponse(data)
-    else:
-        return JsonResponse({'error': 'Invalid request'})
-
-
-
-
-
-
-
-
-
+    # Serialize the profile object
+    profile_fields = [
+        'last_name', 'middle_name', 'first_name', 'extension_name', 'gender', 'contact_no',
+        'email_address', 'facebook_account', 'civil_status', 'citizenship',
+        'household_head', 'beneficiary_4p', 'indigenous_group', 'spouse_name',
+        'spouse_occupation', 'member_organization', 'skills', 'pwd', 'created_on', 'education'
+    ]
+    data = serialize_model_instance(profile, profile_fields)
+    data.update({
+        'profile_id': profile_id,
+        'image_url': profile.get_picture_url() if callable(profile.get_picture_url) else profile.get_picture_url,
+        'religion': str(profile.religion) if profile.religion else None,
+        'tribe': str(profile.tribe) if profile.tribe else None,
+        'created_on': profile.created_on.isoformat() if profile.created_on else None,
+        'address': address_data,
+        'dependents': dependents_data,
+        'farms': farms_data,
+        'profile_organizations': profile_organizations_data,
+        'profile_occupations': profile_occupations_data
+    })
+    return JsonResponse(data)
 
 
 @login_required
@@ -466,7 +472,7 @@ def add_dependent(request):
         form = DependentsForm(request.POST)
     else:
         form = DependentsForm()
-    return save_dependent(request, form, 'user/profile/dependents/add_dependent.html')
+    return save_dependent(request, form, 'user/profile/dependents/add_dependents.html')
 
 @login_required
 def edit_dependent(request, pk):
@@ -475,7 +481,7 @@ def edit_dependent(request, pk):
         form = DependentsForm(request.POST, instance=dependent)
     else:
         form = DependentsForm(instance=dependent)
-    return save_dependent(request, form, 'user/profile/dependents/edit_dependent.html')
+    return save_dependent(request, form, 'user/profile/dependents/edit_dependents.html')
 
 @login_required
 def delete_dependent(request, pk):
@@ -484,11 +490,11 @@ def delete_dependent(request, pk):
     if request.method == 'POST':
         dependent.delete()
         data['form_is_valid'] = True
-        dependents_list = Dependents.objects.all()
-        data['dependents_list'] = render_to_string('user/profile/dependents/list_dependents.html', {'dependents': dependents_list})
+        dependents = Dependents.objects.all()
+        data['dependents_list'] = render_to_string('user/profile/dependents/list_dependents.html', {'dependents': dependents})
     else:
         context = {'dependent': dependent}
-        data['html_form'] = render_to_string('user/profile/dependents/delete_dependent.html', context, request=request)
+        data['html_form'] = render_to_string('user/profile/dependents/delete_dependents.html', context, request=request)
     return JsonResponse(data)
 
 def save_dependent(request, form, template_name):

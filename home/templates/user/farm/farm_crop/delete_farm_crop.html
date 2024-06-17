@@ -1,5 +1,5 @@
 
-<form method="post" action="{% url 'delete-farmcrop' farmcrop.id %}" class="js-farmcrop-delete-form">
+<form method="post" action="{% url 'delete-farmcrop' farmcrop.pk %}" class="js-farmcrop-delete-form">
     {% csrf_token %}
     <div class="modal-header">
         <h4 class="modal-title">Delete Farm Crop</h4>

@@ -7,9 +7,8 @@
         {% endif %}
     </td>
     <td>{{ profile.get_gender_display }}</td>
-    <td>{{ profile.contact_no }}</td>
     <td>
-        <button type="button" class="btn btn-sm btn-warning js-edit-profile" data-toggle="modal" data-target="#new-profile" data-url="{% url 'edit-profile' profile.pk %}">Edit</button>
+        <button type="button" class="btn btn-sm btn-primary js-edit-profile" data-toggle="modal" data-target="#new-profile" data-url="{% url 'edit-profile' profile.pk %}">Edit</button>
         <button type="button" class="btn btn-sm btn-danger js-delete-profile" data-toggle="modal" data-target="#new-profile" data-url="{% url 'delete-profile' profile.pk %}">Delete</button>
     </td>
 </tr>

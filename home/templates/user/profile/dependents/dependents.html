@@ -27,10 +27,10 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <button type="button" class="btn btn-sm btn-primary float-right js-add-dependent" data-toggle="modal" data-target="#add-dependent" data-url="{% url 'add-dependent' %}">Add new</button>
+                            <button type="button" class="btn btn-sm btn-primary float-right js-add-dependent" data-toggle="modal" data-target="#new-dependent" data-url="{% url 'add-dependent' %}">Add new</button>
                         </div>
-                        <div class="card-body p-10">
-                            <table id="dependents-list" class="table table-bordered table-hover">
+                        <div class="card-body">
+                            <table id="dependents-list" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
                                         <th>Profile Name</th>
@@ -53,23 +53,7 @@
             </div>
         </div>
     </section>
-    <div class="modal fade" id="add-dependent">
-        <div class="modal-dialog">
-            <div class="modal-content">
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div>
-    <div class="modal fade" id="edit-dependent">
-        <div class="modal-dialog">
-            <div class="modal-content">
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div>
-    <div class="modal fade" id="delete-dependent">
+    <div class="modal fade" id="new-dependent">
         <div class="modal-dialog">
             <div class="modal-content">
             </div>
@@ -103,10 +87,10 @@
                 type: 'get',
                 dataType: 'json',
                 beforeSend: function() {
-                    $('#add-dependent').modal('show');
+                    $('#new-dependent').modal('show');
                 },
                 success: function(data) {
-                    $('#add-dependent .modal-content').html(data.html_form);
+                    $('#new-dependent .modal-content').html(data.html_form);
                 }
             });
         };
@@ -121,9 +105,9 @@
                 success: function(data) {
                     if (data.form_is_valid) {
                         $('#dependents-list tbody').html(data.dependents_list);
-                        $('#add-dependent').modal('hide');
+                        $('#new-dependent').modal('hide');
                     } else {
-                        $('#add-dependent .modal-content').html(data.html_form);
+                        $('#new-dependent .modal-content').html(data.html_form);
                     }
                 }
             });
@@ -132,23 +116,22 @@
 
         // Add dependent
         $('.js-add-dependent').click(loadForm);
-        $('#add-dependent').on('submit', '.js-dependent-create-form', saveForm);
+        $('#new-dependent').on('submit', '.js-dependent-create-form', saveForm);
 
         // Edit dependent
         $('#dependents-list').on('click', '.js-edit-dependent', loadForm);
-        $('#edit-dependent').on('submit', '.js-dependent-edit-form', saveForm);
+        $('#new-dependent').on('submit', '.js-dependent-edit-form', saveForm);
 
         // Delete dependent
         $('#dependents-list').on('click', '.js-delete-dependent', loadForm);
-        $('#delete-dependent').on('submit', '.js-dependent-delete-form', saveForm);
+        $('#new-dependent').on('submit', '.js-dependent-delete-form', saveForm);
 
         // Initialize DataTables
-        $('#dependents-list').DataTable({
-            responsive: true,
-            lengthChange: false,
-            autoWidth: false,
-            buttons: ["csv", "excel", "pdf", "print"]
-        }).buttons().container().appendTo('#dependents-list_wrapper .col-md-6:eq(0)');
+        $("#dependents-list").DataTable({
+            "responsive": true, "lengthChange": true, "autoWidth": false,
+            //"buttons": ["csv", "excel", "pdf", "print"]
+            // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+          }).buttons().container().appendTo('#dependents-list_wrapper .col-md-12:eq(0)');
     });
 </script>
 {% endblock extra_scripts %}

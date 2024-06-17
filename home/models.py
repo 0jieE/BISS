@@ -181,7 +181,10 @@ class Profile(models.Model):
             return '/profile_pictures/logo1.jpg' 
 
     def __str__(self):
-        return f"{self.first_name}, {self.middle_name}, {self.last_name}, {self.extension_name}"
+        if self.extension_name:
+            return f"{self.first_name} {self.middle_name} {self.last_name} {self.extension_name}"
+        else:
+            return f"{self.first_name} {self.middle_name} {self.last_name}"
 
 class ProfileOccupation(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
@@ -214,6 +217,10 @@ class Farm(models.Model):
     farm_type = models.CharField(max_length=10, choices=FARM_TYPE_CHOICES, default='lowland')
     farm_crop = models.CharField(max_length=10, choices=FARM_CROP_CHOICES, default='intercrop')
     created_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        template = '{0.profile}'
+        return template.format(self)
 
 class Crop(models.Model):
     crop_name = models.CharField(max_length=255)
@@ -265,3 +272,8 @@ class Dependents(models.Model):
     birth_date = models.DateTimeField()
     education = models.CharField(max_length=20, choices=Profile.EDUCATION_CHOICES, default='none')
 
+    def __str__(self):
+        if self.ext_name:
+            return f"{self.first_name} {self.middle_name} {self.last_name} {self.ext_name}"
+        else:
+            return f"{self.first_name} {self.middle_name} {self.last_name}"
